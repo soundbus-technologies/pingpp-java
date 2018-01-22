@@ -3,6 +3,8 @@ package com.pingplusplus.net;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import com.pingplusplus.AppContextHolder;
 import com.pingplusplus.PingppAccount;
 import com.pingplusplus.exception.InvalidRequestException;
 import com.pingplusplus.model.*;
@@ -76,10 +78,10 @@ public abstract class AppBasedResource extends APIResource {
      * @throws InvalidRequestException
      */
     protected static String singleClassURL(Class<?> clazz) throws InvalidRequestException {
-        if (PingppAccount.appId == null) {
-            throw new InvalidRequestException("Please set app_id using PingppAccount.appId = <APP_ID>", "app_id", null);
+        if (AppContextHolder.getAppId() == null) {
+            throw new InvalidRequestException("Please set app_id using AppContextHolder.setAppId(<APP_ID>)", "app_id", null);
         }
-        return String.format("%s/v1/apps/%s/%s", PingppAccount.getApiBase(), PingppAccount.appId, className(clazz));
+        return String.format("%s/v1/apps/%s/%s", PingppAccount.getApiBase(), AppContextHolder.getAppId(), className(clazz));
     }
 
     /**
@@ -111,9 +113,9 @@ public abstract class AppBasedResource extends APIResource {
      * @throws InvalidRequestException
      */
     protected static String customURL(String objectName) throws InvalidRequestException {
-        if (PingppAccount.appId == null) {
-            throw new InvalidRequestException("Please set app_id using PingppAccount.appId = <APP_ID>", "app_id", null);
+        if (AppContextHolder.getAppId() == null) {
+            throw new InvalidRequestException("Please set app_id using AppContextHolder.setAppId(<APP_ID>)", "app_id", null);
         }
-        return String.format("%s/v1/apps/%s/%s", PingppAccount.getApiBase(), PingppAccount.appId, objectName);
+        return String.format("%s/v1/apps/%s/%s", PingppAccount.getApiBase(), AppContextHolder.getAppId(), objectName);
     }
 }

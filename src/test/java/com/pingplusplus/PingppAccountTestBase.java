@@ -13,7 +13,8 @@ public class PingppAccountTestBase {
     @BeforeClass public static void initApiKey() {
         Pingpp.overrideApiBase(PingppAccountTestData.getApiBase());
         Pingpp.apiKey = PingppAccountTestData.getApiKey();
-        Pingpp.appId = PingppAccountTestData.getAppID();
+        //Pingpp.appId = PingppAccountTestData.getAppID();
+        AppContextHolder.setAppId(PingppAccountTestData.getAppID());
         Pingpp.privateKey = PingppAccountTestData.getPKCS8PrivateKey();
 
         Pingpp.DEBUG = true;

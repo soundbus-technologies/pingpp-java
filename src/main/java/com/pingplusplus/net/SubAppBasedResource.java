@@ -1,5 +1,6 @@
 package com.pingplusplus.net;
 
+import com.pingplusplus.AppContextHolder;
 import com.pingplusplus.PingppAccount;
 import com.pingplusplus.exception.InvalidRequestException;
 
@@ -14,10 +15,10 @@ public abstract class SubAppBasedResource extends AppBasedResource {
      * @throws InvalidRequestException
      */
     protected static String singleClassURL(Class<?> clazz, String subAppId) throws InvalidRequestException {
-        if (PingppAccount.appId == null) {
-            throw new InvalidRequestException("Please set app_id using PingppAccount.appId = <APP_ID>", "app_id", null);
+        if (AppContextHolder.getAppId() == null) {
+            throw new InvalidRequestException("Please set app_id using AppContextHolder.setAppId(<APP_ID>)", "app_id", null);
         }
-        return String.format("%s/v1/apps/%s/sub_apps/%s/%s", PingppAccount.getApiBase(), PingppAccount.appId, subAppId, className(clazz));
+        return String.format("%s/v1/apps/%s/sub_apps/%s/%s", PingppAccount.getApiBase(), AppContextHolder.getAppId(), subAppId, className(clazz));
     }
 
     /**
