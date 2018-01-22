@@ -3,6 +3,7 @@ package com.pingplusplus.net;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.pingplusplus.Pingpp;
 import com.pingplusplus.exception.*;
 import com.pingplusplus.exception.InvalidRequestException;
@@ -14,6 +15,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -34,6 +36,7 @@ public abstract class APIResource extends PingppObject {
 
     public static int CONNECT_TIMEOUT = 30;
     public static int READ_TIMEOUT = 80;
+    public static int RETRY_MAX = 1;
 
     /**
      * Http requset method
@@ -81,7 +84,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param clazz
-     * @return
+     * @return className
      */
     protected static String className(Class<?> clazz) {
         String className = clazz.getSimpleName().toLowerCase().replace("$", " ");
@@ -101,7 +104,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param clazz
-     * @return
+     * @return singleClassURL
      */
     protected static String singleClassURL(Class<?> clazz) throws InvalidRequestException {
         String className = null;
@@ -128,7 +131,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param clazz
-     * @return
+     * @return classURL
      */
     protected static String classURL(Class<?> clazz) throws InvalidRequestException {
         return String.format("%ss", singleClassURL(clazz));
@@ -137,7 +140,7 @@ public abstract class APIResource extends PingppObject {
     /**
      * @param clazz
      * @param id
-     * @return
+     * @return instanceURL
      * @throws InvalidRequestException
      */
     protected static String instanceURL(Class<?> clazz, String id) throws InvalidRequestException {
@@ -154,7 +157,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param str
-     * @return
+     * @return urlEncodedString
      * @throws UnsupportedEncodingException
      */
     protected static String urlEncode(String str) throws UnsupportedEncodingException {
@@ -168,7 +171,7 @@ public abstract class APIResource extends PingppObject {
     /**
      * @param k
      * @param v
-     * @return
+     * @return urlEncodedString
      * @throws UnsupportedEncodingException
      */
     private static String urlEncodePair(String k, String v)
@@ -178,7 +181,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param apiKey
-     * @return
+     * @return headers
      */
     static Map<String, String> getHeaders(String apiKey) {
         Map<String, String> headers = new HashMap<String, String>();
@@ -214,7 +217,7 @@ public abstract class APIResource extends PingppObject {
     /**
      * @param url
      * @param apiKey
-     * @return
+     * @return HttpURLConnection
      * @throws IOException
      */
     private static java.net.HttpURLConnection createPingppConnection(
@@ -247,7 +250,7 @@ public abstract class APIResource extends PingppObject {
     /**
      * @param url
      * @param query
-     * @return
+     * @return formatedURL
      */
     private static String formatURL(String url, String query) {
         if (query == null || query.isEmpty()) {
@@ -263,7 +266,7 @@ public abstract class APIResource extends PingppObject {
      * @param url
      * @param query
      * @param apiKey
-     * @return
+     * @return HttpURLConnection
      * @throws IOException
      * @throws APIConnectionException
      */
@@ -308,7 +311,7 @@ public abstract class APIResource extends PingppObject {
      * @param url
      * @param query
      * @param apiKey
-     * @return
+     * @return HttpURLConnection
      * @throws IOException
      * @throws APIConnectionException
      */
@@ -349,7 +352,7 @@ public abstract class APIResource extends PingppObject {
      * @param url
      * @param query
      * @param apiKey
-     * @return
+     * @return HttpURLConnection
      * @throws IOException
      * @throws APIConnectionException
      */
@@ -388,7 +391,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param params
-     * @return
+     * @return queryString
      * @throws UnsupportedEncodingException
      * @throws InvalidRequestException
      */
@@ -408,7 +411,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param params
-     * @return
+     * @return JSONString
      */
     private static String createJSONString(Map<String, Object> params) {
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
@@ -417,7 +420,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param params
-     * @return
+     * @return flattenParams
      * @throws InvalidRequestException
      */
     private static Map<String, String> flattenParams(Map<String, Object> params)
@@ -498,7 +501,7 @@ public abstract class APIResource extends PingppObject {
 
     /**
      * @param responseStream
-     * @return
+     * @return responseString
      * @throws IOException
      */
     private static String getResponseBody(InputStream responseStream)
@@ -517,7 +520,7 @@ public abstract class APIResource extends PingppObject {
      * @param url
      * @param query
      * @param apiKey
-     * @return
+     * @return PingppResponse
      * @throws APIConnectionException
      */
     private static PingppResponse makeURLConnectionRequest(
@@ -575,7 +578,7 @@ public abstract class APIResource extends PingppObject {
      * @param params
      * @param clazz
      * @param <T>
-     * @return
+     * @return <T>
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -584,7 +587,29 @@ public abstract class APIResource extends PingppObject {
     protected static <T> T request(APIResource.RequestMethod method, String url, Map<String, Object> params, Class<T> clazz) throws AuthenticationException,
             InvalidRequestException, APIConnectionException,
             APIException, ChannelException, RateLimitException {
-        if ((Pingpp.apiKey == null || Pingpp.apiKey.length() == 0)) {
+        return request(method, url, null, params, clazz);
+    }
+
+    /**
+     * @param method
+     * @param url
+     * @param apiKey
+     * @param params
+     * @param clazz
+     * @param <T>
+     * @return <T>
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    protected static <T> T request(APIResource.RequestMethod method, String url, String apiKey, Map<String, Object> params, Class<T> clazz) throws AuthenticationException,
+            InvalidRequestException, APIConnectionException,
+            APIException, ChannelException, RateLimitException {
+        apiKey = apiKey != null ? apiKey : Pingpp.apiKey;
+        if ((apiKey == null || apiKey.length() == 0)) {
             throw new AuthenticationException(
                     "No API key provided. (HINT: set your API key using 'Pingpp.apiKey = <API-KEY>'. "
                             + "You can generate API keys from the Pingpp web interface. "
@@ -608,21 +633,31 @@ public abstract class APIResource extends PingppObject {
         }
 
         PingppResponse response;
-        try {
-            // HTTPSURLConnection verifies SSL cert by default
-            response = makeURLConnectionRequest(method, url, query, Pingpp.apiKey);
-            if (Pingpp.DEBUG) {
-                System.out.println(getGson().toJson(response));
+        int retryCount = 0;
+        while(true) {
+            try {
+                // HTTPSURLConnection verifies SSL cert by default
+                response = makeURLConnectionRequest(method, url, query, apiKey);
+                if (Pingpp.DEBUG) {
+                    System.out.println(getGson().toJson(response));
+                }
+
+                int rCode = response.getResponseCode();
+                String rBody = response.getResponseBody();
+                if (rCode < 200 || rCode >= 300) {
+                    handleAPIError(rBody, rCode);
+                }
+                return getGson().fromJson(rBody, clazz);
+            } catch (ClassCastException ce) {
+                throw ce;
+            } catch (ConnectException e) {
+                if(retryCount < RETRY_MAX) {
+                    retryCount++;
+                } else {
+                    throw new APIConnectionException(e.getMessage(), e);
+                }
             }
-        } catch (ClassCastException ce) {
-            throw ce;
         }
-        int rCode = response.getResponseCode();
-        String rBody = response.getResponseBody();
-        if (rCode < 200 || rCode >= 300) {
-            handleAPIError(rBody, rCode);
-        }
-        return getGson().fromJson(rBody, clazz);
     }
 
     /**
@@ -636,9 +671,16 @@ public abstract class APIResource extends PingppObject {
      */
     private static void handleAPIError(String rBody, int rCode)
             throws InvalidRequestException, AuthenticationException,
-            APIException, ChannelException, RateLimitException {
-        APIResource.Error error = getGson().fromJson(rBody,
-                APIResource.ErrorContainer.class).error;
+            APIException, ChannelException, RateLimitException, ConnectException {
+        Error error = null;
+        try {
+            error = getGson().fromJson(rBody,
+                    ErrorContainer.class).error;
+        } catch (JsonSyntaxException e) {
+            error = new Error();
+            error.message = rBody;
+            error.code = String.valueOf(rCode);
+        }
         switch (rCode) {
             case 400:
                 throw new InvalidRequestException(error.toString(), error.param, null);
@@ -650,6 +692,8 @@ public abstract class APIResource extends PingppObject {
                 throw new ChannelException(error.toString(), error.param, null);
             case 401:
                 throw new AuthenticationException(error.toString());
+            case 502:
+                throw new ConnectException(error.toString());
             default:
                 throw new APIException(error.toString(), null);
         }

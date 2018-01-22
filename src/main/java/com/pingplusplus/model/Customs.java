@@ -173,7 +173,7 @@ public class Customs extends APIResource {
      * 创建 customs
      *
      * @param params
-     * @return
+     * @return Customs
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -184,14 +184,33 @@ public class Customs extends APIResource {
     public static Customs create(Map<String, Object> params)
             throws AuthenticationException, InvalidRequestException,
             APIConnectionException, APIException, ChannelException, RateLimitException {
-        return request(RequestMethod.POST, classURL(Customs.class), params, Customs.class);
+        return create(null, params);
+    }
+
+    /**
+     * 创建 customs
+     *
+     * @param apiKey  Ping++ ApiKey
+     * @param params
+     * @return Customs
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    public static Customs create(String apiKey, Map<String, Object> params)
+            throws AuthenticationException, InvalidRequestException,
+            APIConnectionException, APIException, ChannelException, RateLimitException {
+        return request(RequestMethod.POST, classURL(Customs.class), apiKey, params, Customs.class);
     }
 
     /**
      * 查询 customs
      *
      * @param id
-     * @return
+     * @return Customs
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -202,14 +221,33 @@ public class Customs extends APIResource {
     public static Customs retrieve(String id) throws AuthenticationException,
             InvalidRequestException, APIConnectionException,
             APIException, ChannelException, RateLimitException {
-        return request(RequestMethod.GET, instanceURL(Customs.class, id), null, Customs.class);
+        return retrieve(id, null);
+    }
+
+    /**
+     * 查询 customs
+     *
+     * @param id
+     * @param apiKey  Ping++ ApiKey
+     * @return Customs
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    public static Customs retrieve(String id, String apiKey) throws AuthenticationException,
+            InvalidRequestException, APIConnectionException,
+            APIException, ChannelException, RateLimitException {
+        return request(RequestMethod.GET, instanceURL(Customs.class, id), apiKey, null, Customs.class);
     }
 
     /**
      * 查询 customs 列表
      *
      * @param params
-     * @return
+     * @return CustomsCollection
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -220,7 +258,25 @@ public class Customs extends APIResource {
     public static CustomsCollection list(Map<String, Object> params)
             throws AuthenticationException, InvalidRequestException,
             APIConnectionException, APIException, ChannelException, RateLimitException {
-        return request(RequestMethod.GET, classURL(Customs.class), params, CustomsCollection.class);
+        return list(null, params);
     }
 
+    /**
+     * 查询 customs 列表
+     *
+     * @param apiKey  Ping++ ApiKey
+     * @param params
+     * @return CustomsCollection
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    public static CustomsCollection list(String apiKey, Map<String, Object> params)
+            throws AuthenticationException, InvalidRequestException,
+            APIConnectionException, APIException, ChannelException, RateLimitException {
+        return request(RequestMethod.GET, classURL(Customs.class), apiKey, params, CustomsCollection.class);
+    }
 }

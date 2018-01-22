@@ -127,7 +127,7 @@ public class BatchRefund extends APIResource {
 
     /**
      * @param clazz
-     * @return
+     * @return String
      */
     protected static String classURL(Class<?> clazz) {
         return apiBasePrefixedURL("/v1/batch_refunds");
@@ -137,7 +137,7 @@ public class BatchRefund extends APIResource {
      * 创建 batch_refund
      *
      * @param params
-     * @return
+     * @return BatchRefund
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -148,14 +148,33 @@ public class BatchRefund extends APIResource {
     public static BatchRefund create(Map<String, Object>params)
             throws AuthenticationException, InvalidRequestException,
             APIConnectionException, APIException, ChannelException, RateLimitException {
-        return request(RequestMethod.POST, classURL(BatchRefund.class), params, BatchRefund.class);
+        return create(null, params);
+    }
+
+    /**
+     * 创建 batch_refund
+     *
+     * @param apiKey  Ping++ ApiKey
+     * @param params
+     * @return BatchRefund
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    public static BatchRefund create(String apiKey, Map<String, Object>params)
+            throws AuthenticationException, InvalidRequestException,
+            APIConnectionException, APIException, ChannelException, RateLimitException {
+        return request(RequestMethod.POST, classURL(BatchRefund.class), apiKey, params, BatchRefund.class);
     }
 
     /**
      * 查询 batch_refund
      *
      * @param id
-     * @return
+     * @return BatchRefund
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -166,14 +185,33 @@ public class BatchRefund extends APIResource {
     public static BatchRefund retrieve(String id)
             throws AuthenticationException, InvalidRequestException,
             APIConnectionException, APIException, ChannelException, RateLimitException {
-        return request(RequestMethod.GET, instanceURL(BatchRefund.class, id), null, BatchRefund.class);
+        return retrieve(id, null);
+    }
+
+    /**
+     * 查询 batch_refund
+     *
+     * @param id
+     * @param apiKey  Ping++ ApiKey
+     * @return BatchRefund
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    public static BatchRefund retrieve(String id, String apiKey)
+            throws AuthenticationException, InvalidRequestException,
+            APIConnectionException, APIException, ChannelException, RateLimitException {
+        return request(RequestMethod.GET, instanceURL(BatchRefund.class, id), apiKey, null, BatchRefund.class);
     }
 
     /**
      * 查询 batch_refund 列表
      *
      * @param params
-     * @return
+     * @return BatchRefundCollection
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -184,6 +222,25 @@ public class BatchRefund extends APIResource {
     public static BatchRefundCollection list(Map<String, Object> params)
             throws AuthenticationException, InvalidRequestException,
             APIConnectionException, APIException, ChannelException, RateLimitException {
-        return request(RequestMethod.GET, classURL(BatchRefund.class), params, BatchRefundCollection.class);
+        return list(null, params);
+    }
+
+    /**
+     * 查询 batch_refund 列表
+     *
+     * @param apiKey  Ping++ ApiKey
+     * @param params
+     * @return BatchRefundCollection
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    public static BatchRefundCollection list(String apiKey, Map<String, Object> params)
+            throws AuthenticationException, InvalidRequestException,
+            APIConnectionException, APIException, ChannelException, RateLimitException {
+        return request(RequestMethod.GET, classURL(BatchRefund.class), apiKey, params, BatchRefundCollection.class);
     }
 }

@@ -87,7 +87,7 @@ public class Event extends APIResource {
      * 查询 Event
      *
      * @param id
-     * @return
+     * @return Event
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -97,7 +97,26 @@ public class Event extends APIResource {
     public static Event retrieve(String id) throws AuthenticationException,
             InvalidRequestException, APIConnectionException,
             APIException, ChannelException, RateLimitException {
-        return request(APIResource.RequestMethod.GET, instanceURL(Event.class, id), null, Event.class);
+        return retrieve(id, null, null);
+    }
+
+    /**
+     * 查询 Event
+     *
+     * @param id
+     * @param apiKey  Ping++ ApiKey
+     * @return Event
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    public static Event retrieve(String id, String apiKey) throws AuthenticationException,
+            InvalidRequestException, APIConnectionException,
+            APIException, ChannelException, RateLimitException {
+        return retrieve(id, apiKey, null);
     }
 
     /**
@@ -105,7 +124,7 @@ public class Event extends APIResource {
      *
      * @param id
      * @param params
-     * @return
+     * @return Event
      * @throws AuthenticationException
      * @throws InvalidRequestException
      * @throws APIConnectionException
@@ -115,6 +134,26 @@ public class Event extends APIResource {
     public static Event retrieve(String id, Map<String, Object> params) throws AuthenticationException,
             InvalidRequestException, APIConnectionException,
             APIException, ChannelException, RateLimitException {
-        return request(APIResource.RequestMethod.GET, instanceURL(Event.class, id), params, Event.class);
+        return retrieve(id, null, params);
+    }
+
+    /**
+     * 查询 Event
+     *
+     * @param id
+     * @param apiKey  Ping++ ApiKey
+     * @param params
+     * @return Event
+     * @throws AuthenticationException
+     * @throws InvalidRequestException
+     * @throws APIConnectionException
+     * @throws APIException
+     * @throws ChannelException
+     * @throws RateLimitException
+     */
+    public static Event retrieve(String id, String apiKey, Map<String, Object> params) throws AuthenticationException,
+            InvalidRequestException, APIConnectionException,
+            APIException, ChannelException, RateLimitException {
+        return request(APIResource.RequestMethod.GET, instanceURL(Event.class, id), apiKey, params, Event.class);
     }
 }
